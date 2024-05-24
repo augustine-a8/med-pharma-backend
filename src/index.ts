@@ -9,28 +9,12 @@ import http from "http";
 import cors from "cors";
 
 import { connectDb } from "./models/db";
+import { typeDefs as typeDefs } from "./schema/typedefs";
+import { resolvers } from "./schema/resolvers";
 
 interface MyContext {
   token?: String;
 }
-
-const typeDefs = `
-    type Welcome {
-        message: String!
-    }
-
-    type Query {
-        welcome: Welcome!
-    }
-`;
-
-const resolvers = {
-  Query: {
-    welcome: () => ({
-      message: "Welcome to MD_Backend",
-    }),
-  },
-};
 
 async function startServer() {
   const app = express();
