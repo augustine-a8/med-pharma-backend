@@ -9,7 +9,7 @@ import http from "http";
 import cors from "cors";
 
 import { connectDb } from "./models/db";
-import { typeDefs as typeDefs } from "./schema/typedefs";
+import { typeDefs } from "./schema/typedefs";
 import { resolvers } from "./schema/resolvers";
 
 interface MyContext {
@@ -31,7 +31,13 @@ async function startServer() {
     cors<cors.CorsRequest>(),
     express.json(),
     expressMiddleware(apolloServer, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req }) => {
+        const token = req.headers.authorization || "";
+
+        return {
+          token,
+        };
+      },
     })
   );
 

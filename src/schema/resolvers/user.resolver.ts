@@ -3,9 +3,36 @@ import bcyrpt from "bcryptjs";
 
 import { UserModel } from "../../models/user.model";
 import { generateToken } from "../../lib/util/jwt.util";
+import { UserRepository } from "../../repositories/user.repository";
 
 const userResolver = {
-  Query: {},
+  Query: {
+    getUser: async (_: any, __: any, context: { token: string }) => {
+      if (context.token === "") {
+        throw new GraphQLError("User is not authenticated", {
+          extensions: {
+            code: "UNAUTHORIZED",
+          },
+        });
+      }
+
+      const user = await UserRepository.getUser(context.token);
+      if (!user) {
+        throw new GraphQLError("User does not exist", {
+          extensions: {
+            code: "NOT_FOUND",
+          },
+        });
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      };
+    },
+  },
   Mutation: {
     register: async (
       _: any,

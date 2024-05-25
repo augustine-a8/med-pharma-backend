@@ -16,6 +16,7 @@ const typeDefs = `
     
     type Query {
         welcome: Welcome!
+        getUser: User!
     }
 
     type Mutation {
