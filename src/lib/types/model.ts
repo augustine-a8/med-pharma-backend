@@ -18,4 +18,10 @@ interface IConsultationModel extends Document {
   consultationOfficer: IUserModel;
 }
 
-export { IConsultationModel, IUserModel };
+interface IInvitationCode extends Document {
+  code: string;
+  expiresAt: Date;
+  used: boolean;
+}
+
+export { IConsultationModel, IUserModel, UserRole, IInvitationCode };

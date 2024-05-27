@@ -11,6 +11,7 @@ import cors from "cors";
 import { connectDb } from "./models/db";
 import { typeDefs } from "./schema/typedefs";
 import { resolvers } from "./schema/resolvers";
+import { adminRouter } from "./controllers/admin.controller";
 
 interface MyContext {
   token?: String;
@@ -40,6 +41,8 @@ async function startServer() {
       },
     })
   );
+
+  app.use("/admin", cors<cors.CorsRequest>(), express.json(), adminRouter);
 
   await new Promise<void>((resolve) => {
     httpServer.listen({ port: 4040 }, () => {
