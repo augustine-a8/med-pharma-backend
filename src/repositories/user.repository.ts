@@ -1,20 +1,22 @@
-import { verifyToken } from "../lib/util/jwt.util";
 import { UserModel } from "../models/user.model";
 
 const UserRepository = {
-  getUser: async (token: string) => {
-    try {
-      const payload = verifyToken(token);
-      const user = await UserModel.findOne({
-        _id: payload.id,
-        email: payload.email,
-        name: payload.name,
-      });
+  getUserById: async (id: string) => {
+    const user = await UserModel.findOne({ _id: id });
 
-      return user;
-    } catch (err: any) {
-      throw new Error(err);
-    }
+    return user;
+  },
+  getUserByName: async (name: string) => {
+    const user = await UserModel.findOne({ name });
+
+    return user;
+  },
+  deleteUser: async (id: string) => {
+    const res = await UserModel.deleteOne({
+      _id: id,
+    });
+
+    return res.acknowledged;
   },
 };
 

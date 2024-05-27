@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
 
 import { UserRepository } from "../../src/repositories/user.repository";
 
@@ -25,11 +24,9 @@ describe("User Repository Test Suite", () => {
       .collection("users")
       .insertOne({ email, name, password: "", role: "Patient" });
 
-    const id = res.insertedId;
-    const jwtSecret = process.env.JWT_SECRET!;
-    const token = jwt.sign({ id: id.toString(), email, name }, jwtSecret);
+    const id = res.insertedId.toString();
 
-    const user = await UserRepository.getUser(token);
+    const user = await UserRepository.getUserById(id);
     expect(user).toBeDefined();
   });
 });

@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import bcyrpt from "bcryptjs";
 
 import { UserModel } from "../../models/user.model";
-import { generateToken } from "../../lib/util/jwt.util";
+import { generateToken, verifyToken } from "../../lib/util/jwt.util";
 import { UserRepository } from "../../repositories/user.repository";
 
 const userResolver = {
@@ -16,7 +16,9 @@ const userResolver = {
         });
       }
 
-      const user = await UserRepository.getUser(context.token);
+      const payload = verifyToken(context.token);
+
+      const user = await UserRepository.getUserById(payload.id);
       if (!user) {
         throw new GraphQLError("User does not exist", {
           extensions: {
@@ -116,6 +118,24 @@ const userResolver = {
       return {
         token,
       };
+    },
+    deleteAccount: async (_: any, __: any, context: { token: string }) => {
+      if (context.token === "") {
+        throw new GraphQLError("User is not authenticated", {
+          extensions: {
+            code: "UNAUTHORIZED",
+          },
+        });
+      }
+
+      const payload = verifyToken(context.token);
+
+      const accountDeleted = await UserRepository.deleteUser(payload.id);
+      if (!accountDeleted) {
+        throw new GraphQLError("Failed to delete account");
+      }
+
+      return "Account deleted";
     },
   },
 };
