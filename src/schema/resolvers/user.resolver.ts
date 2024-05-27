@@ -2,21 +2,14 @@ import { GraphQLError } from "graphql";
 import bcyrpt from "bcryptjs";
 
 import { UserModel } from "../../models/user.model";
-import { generateToken, verifyToken } from "../../lib/util/jwt.util";
+import { generateToken } from "../../lib/util/jwt.util";
 import { UserRepository } from "../../repositories/user.repository";
+import { checkAuth } from "../../services/auth.service";
 
 const userResolver = {
   Query: {
     getUser: async (_: any, __: any, context: { token: string }) => {
-      if (context.token === "") {
-        throw new GraphQLError("User is not authenticated", {
-          extensions: {
-            code: "UNAUTHORIZED",
-          },
-        });
-      }
-
-      const payload = verifyToken(context.token);
+      const payload = checkAuth(context.token);
 
       const user = await UserRepository.getUserById(payload.id);
       if (!user) {
@@ -54,18 +47,14 @@ const userResolver = {
         });
       }
 
-      const user = new UserModel({
+      const newUser = await UserRepository.createUser(
         email,
         name,
-        password: bcyrpt.hashSync(password, 12),
-        role: "Patient",
-      });
-
-      const savedUser = await user.save();
-
+        (password = bcyrpt.hashSync(password, 12))
+      );
       let token: string = "";
       try {
-        token = generateToken(savedUser.id, savedUser.name, savedUser.email);
+        token = generateToken(newUser.id, newUser.name, newUser.email);
       } catch (error) {
         throw new GraphQLError(`Error: ${error}`, {
           extensions: {
@@ -120,15 +109,7 @@ const userResolver = {
       };
     },
     deleteAccount: async (_: any, __: any, context: { token: string }) => {
-      if (context.token === "") {
-        throw new GraphQLError("User is not authenticated", {
-          extensions: {
-            code: "UNAUTHORIZED",
-          },
-        });
-      }
-
-      const payload = verifyToken(context.token);
+      const payload = checkAuth(context.token);
 
       const accountDeleted = await UserRepository.deleteUser(payload.id);
       if (!accountDeleted) {
