@@ -2,3 +2,5 @@ node_modules
 dist
 .env
 .env.test
+.env.local
+test/unit/db.test.ts
