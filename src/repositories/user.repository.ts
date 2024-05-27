@@ -1,6 +1,18 @@
 import { UserModel } from "../models/user.model";
 
 const UserRepository = {
+  createUser: async (email: string, name: string, password: string) => {
+    const user = new UserModel({
+      email,
+      name,
+      password,
+      role: "Patient",
+    });
+
+    const savedUser = await user.save();
+
+    return savedUser;
+  },
   getUserById: async (id: string) => {
     const user = await UserModel.findOne({ _id: id });
 
