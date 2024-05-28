@@ -1,3 +1,4 @@
+import { UserRole } from "../lib/types/model";
 import { UserModel } from "../models/user.model";
 
 const UserRepository = {
@@ -22,6 +23,11 @@ const UserRepository = {
     const user = await UserModel.findOne({ name });
 
     return user;
+  },
+  getUsersByRole: async (role: UserRole) => {
+    const users = await UserModel.find({ role });
+
+    return users;
   },
   deleteUser: async (id: string) => {
     const res = await UserModel.deleteOne({

@@ -24,6 +24,14 @@ const typeDefs = `
         token: String!
     }
 
+    type Patient {
+        id: ID!
+        name: String!
+        email: String!
+        role: String!
+        consultations: [Consultation!]!
+    }
+
     input BookConsultationInput {
         consultationDate: String!
         consultationType: String!
@@ -37,6 +45,8 @@ const typeDefs = `
         getUser: User!
         getAllConsultations: [Consultation!]!
         getAllConsultationsForPatient(patientId: ID): [Consultation!]!
+        getAllPatients: [User!]!
+        getMyConsultations: [Consultation!]!
     }
 
     type Mutation {

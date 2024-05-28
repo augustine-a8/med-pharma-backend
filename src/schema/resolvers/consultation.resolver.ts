@@ -57,6 +57,24 @@ const consultationResolver = {
 
       return allConsultationsForPatient;
     },
+    getMyConsultations: async (_: any, __: any, context: IContext) => {
+      if (!context.token) {
+        throw new GraphQLError("User is not authorized", {
+          extensions: {
+            code: "UNAUTHORIZED",
+          },
+        });
+      }
+
+      const payload = checkAuth(context.token);
+
+      const AllConsultations =
+        await ConsultationRepository.getAllConsultationsForPatientById(
+          payload.id
+        );
+
+      return AllConsultations;
+    },
   },
   Mutation: {
     bookConsultation: async (
@@ -93,17 +111,25 @@ const consultationResolver = {
       context: IContext
     ) => {
       const payload = checkAuth(context.token);
+      const isConsultationOfficer = await verifyConsultationOfficerRole(
+        payload
+      );
 
-      const consultation =
-        await ConsultationRepository.getConsultationForPatientById(
-          consultationId,
-          payload.id
-        );
+      const consultation = await ConsultationRepository.getConsultationById(
+        consultationId
+      );
 
       if (!consultation) {
         throw new GraphQLError("Consultation does not exist", {
           extensions: {
             code: "NOT_FOUND",
+          },
+        });
+      }
+      if (!isConsultationOfficer) {
+        throw new GraphQLError("User is not authorized", {
+          extensions: {
+            code: "UNAUTHORIZED",
           },
         });
       }

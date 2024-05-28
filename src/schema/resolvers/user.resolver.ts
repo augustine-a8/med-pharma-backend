@@ -4,7 +4,12 @@ import bcyrpt from "bcryptjs";
 import { UserModel } from "../../models/user.model";
 import { generateToken } from "../../lib/util/jwt.util";
 import { UserRepository } from "../../repositories/user.repository";
-import { checkAuth } from "../../services/auth.service";
+import {
+  checkAuth,
+  verifyConsultationOfficerRole,
+} from "../../services/auth.service";
+import { IContext } from "../../lib/types/apollo.types";
+import { ConsultationRepository } from "../../repositories/consultation.repository";
 
 const userResolver = {
   Query: {
@@ -26,6 +31,24 @@ const userResolver = {
         name: user.name,
         role: user.role,
       };
+    },
+    getAllPatients: async (_: any, __: any, context: IContext) => {
+      const payload = checkAuth(context.token);
+      const isConsultationOfficer = await verifyConsultationOfficerRole(
+        payload
+      );
+
+      if (!isConsultationOfficer) {
+        throw new GraphQLError("User is not authorized", {
+          extensions: {
+            code: "UNAUTHORIZED",
+          },
+        });
+      }
+
+      const users = await UserRepository.getUsersByRole("Patient");
+
+      return users;
     },
   },
   Mutation: {

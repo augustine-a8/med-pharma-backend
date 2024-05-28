@@ -7,7 +7,10 @@ type CreateConsultation = BookConsultationInput & {
 
 const ConsultationRepository = {
   getAllConsultations: async () => {
-    const allConsultations = await ConsultationModel.find({});
+    const allConsultations = await ConsultationModel.find({}).populate([
+      "patient",
+      "consultationOfficer",
+    ]);
 
     return allConsultations;
   },
@@ -34,12 +37,9 @@ const ConsultationRepository = {
     return savedConsultation.id;
   },
   getConsultationById: async (consultationId: string) => {
-    const consultation = await ConsultationModel.findOne(
-      {
-        _id: consultationId,
-      },
-      { populate: "user" }
-    );
+    const consultation = await ConsultationModel.findOne({
+      _id: consultationId,
+    }).populate("patient");
 
     return consultation;
   },
